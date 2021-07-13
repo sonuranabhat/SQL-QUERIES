@@ -104,7 +104,22 @@ WITH (
 
 -- Research on Date Function Queries from the slide
 -- After populating the data, find no of people sharing
-select * from dbo.employee
 
--- Birth date
-select count(username) from dbo.employee where birthday IN( select birthday from dbo.employee group by birthday having count(birthday)> 1)
+--Birth date(full date)
+
+select distinct *
+from (
+   select birthdate, count(*) over (partition by birthdate) as People
+   from dates
+) same
+where same.People > 1;
+--no of people sharing Birth month
+select count(*) as Total, datename(month, birthdate) as MonthName
+from dates
+group by datename(month, birthdate);
+--no of people sharing Weekday
+select count(*) as Total, datename(weekday, datepart(weekday, birthdate)) as Weekday
+from dates
+group by datepart(weekday, birthdate);
+--Find the current age of all people
+select *, datediff(year, birthdate, getdate()) age from dates;
